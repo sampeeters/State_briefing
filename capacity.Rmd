@@ -1,0 +1,112 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+```{r echo = FALSE, message = FALSE, warning=FALSE}
+
+library(dplyr)
+library(ggplot2)
+library(viridis)
+library(lubridate)
+library(scales)
+library(ectrlplot)
+
+# run setup script
+source("_common.R")
+
+# En-route ATFM delay
+
+state_under_review <- "NATS"
+
+# choose a date =>
+year_start <- "2015-01-01"
+# choose a date <=
+year_end <- "2019-01-31"
+
+# year of the average en route ATFM delay per flight (ECTL area)
+year_input <- "2018"
+# reference year 
+ref_year <- "2017"
+
+# Airport arrival ATFM delays
+
+airport <- "Bergen"
+since <- "2014"
+to <- "2019"
+
+# Read data
+
+source("R/capacity/read-ert-dly.R")
+source("R/capacity/read-apt-dly.R")
+
+```
+
+
+# Capacity
+
+## Air traffic flow management (ATFM) delays
+
+Source : NM, PRU ANS Performance Data Portal  
+         The data in this section is from the PRU ANS performance data portal (data section).  
+         It is available at: <http://ansperformance.eu/data/performancearea/>
+
+### En-route ATFM delays
+
+(ref:flights) Flights (`r state_under_review`). 
+
+```{r flights, fig.cap='(ref:flights)'}
+
+source("R/capacity/plot-flights.R")
+flights_function(year_start, year_end, state_under_review)
+
+```
+
+(ref:delay) En-route ATFM delay (`r state_under_review`). 
+
+```{r delay, fig.cap='(ref:delay)'}
+
+source("R/capacity/plot-delays.R")
+delays(year_start, year_end, state_under_review)
+
+```
+
+(ref:avg-dly-flt) Average en-route ATFM delay per flight (`r state_under_review`). 
+
+```{r avg-dly-flt, fig.cap='(ref:avg-dly-flt)'}
+
+source("R/capacity/plot-avg-dly-flt.R")
+avg_delay_flight(year_start, year_end, state_under_review)
+
+```
+
+(ref:average-delay-grouped) Average en route ATFM delay per flight (EUROCONTROL area). 
+
+```{r average-delay-grouped, fig.cap='(ref:average-delay-grouped)'}
+
+source("R/capacity/plot-avg-grouped-dly-flt.R")
+avg_delay_grouped(year_input, ref_year)
+
+```
+
+### Airport arrival ATFM delays
+
+(ref:avg-arriv-delay) Airport arrival ATFM delays (`r airport`). 
+
+```{r avg-arriv-delay, fig.cap='(ref:avg-arriv-delay)'}
+
+source("R/capacity/plot-avg-arr-dly.R")
+apt_arrival_dly(airport, since, to)
+
+```
+
+(ref:avg-daily-arr) Airport arrival ATFM delays (`r airport`). 
+
+```{r avg-daily-arr, fig.cap='(ref:avg-daily-arr)'}
+
+source("R/capacity/plot-avg-daily-arr.R")
+avg_daily_arrivals(airport, since, to)
+
+```

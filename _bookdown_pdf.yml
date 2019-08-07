@@ -1,0 +1,16 @@
+new_session: yes
+output_dir: "../book-generated/"
+delete_merged_file: true
+
+rmd_files: [
+  "index_pdf.Rmd",
+  "institutional-arrangements.Rmd",
+  "traffic-characteristics.Rmd",
+  "safety.Rmd",
+  "capacity.Rmd",
+  "environment.Rmd",
+  "cost-effectiveness.Rmd",
+  "evolution-of-cost-effectiveness.Rmd",
+  "network-operation-plan.Rmd",
+  "references.Rmd"
+]

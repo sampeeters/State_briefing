@@ -1,0 +1,155 @@
+---
+title: "Report with Highcharter"
+output: 
+  flexdashboard::flex_dashboard:
+   orientation: rows
+---
+  
+```{r setup, include=FALSE}
+library(plyr)
+library(dplyr)
+library(readr)
+library(readxl)
+library(stringr)
+library(purrr)
+library(lubridate)
+library(tidyr)
+library(highcharter)
+library(quantmod)
+library(tidyverse)
+library(viridisLite)
+library(flexdashboard)
+
+cols <- viridis(8)
+cols <- substr(cols, 0, 7)
+
+thm <- 
+  hc_theme(
+    colors = c("#1a6ecc", "#434348", "#90ed7d"),
+    chart = list(
+      backgroundColor = "transparent",
+      style = list(fontFamily = "Source Sans Pro")
+    ),
+    xAxis = list(
+      gridLineWidth = 1
+    )
+  )
+```
+
+Dashboard
+=======================================================================
+  
+Row
+-----------------------------------------------------------------------
+  
+### Downloads per sec (last 5 min) {.value-box}
+  
+```{r}
+valueBox(5000, caption = "Number of Flights", icon="fas fa-plane")
+```
+
+### Total downloads {.value-box}
+
+```{r}
+valueBox(500, caption = "Minutes of Delay", icon="far fa-tired")
+```
+
+### Unique users {.value-box}
+
+```{r}
+valueBox(500, caption = "Weather delays", icon="fas fa-bolt")
+```
+
+### Unique users {.value-box}
+
+```{r}
+gauge(91, min = 0, max = 100, symbol = '%', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+))
+```
+
+Row
+-----------------------------------------------------------------------
+  
+### Title 1 {data-width=600}
+  
+```{r}
+library(readxl)
+library(dplyr)
+library(readr)
+library(readxl)
+library(stringr)
+library(purrr)
+library(lubridate)
+library(tidyr)
+
+hfe <- read_xlsx("C:/LocalFiles/RProjects/bookdown/data/Horizontal_Flight_Efficiency.xlsm", 
+                 sheet = "DATA", col_names = TRUE)
+
+# rename 
+all <- hfe %>% rename(
+  date = ENTRY_DATE,
+  yyyy = YEAR, mm = MONTH_NUM,
+  entity_name = ENTITY_NAME, entity_type = ENTITY_TYPE,
+  type_model = TYPE_MODEL,
+  dist_flown_km = DIST_FLOWN_KM_1,
+  dist_direct_km = DIST_DIRECT_KM,
+  dist_achieved_km = DIST_ACHIEVED_KM_1) %>%
+  mutate(
+    dd = day(date)) %>%
+  select(-MONTH_MON) %>%
+  select(date, yyyy, mm, dd, everything()) 
+
+all$dist_direct_km <- as.integer(all$dist_direct_km)
+all$dist_achieved_km <- as.integer(all$dist_achieved_km)
+
+########################################################################
+
+allnew <- all %>%
+  filter(entity_name == "Armenia") %>% 
+  mutate(var = ((dist_flown_km / dist_achieved_km) -1)*100) %>%
+  select(date, type_model, var) %>%
+  mutate(perc = 100 - var) %>%
+  filter(date >= "2016-01-01" & date <= "2019-03-31") %>%
+  select(date, type_model, perc)
+
+dataset <- spread(allnew, type_model, perc)
+######
+highchart(type = "stock") %>% 
+  hc_title(text = "Horizontal en-route flight efficiency") %>% 
+  #hc_subtitle(text = "") %>%
+  hc_add_series(name = "Actual trajectory",
+                data = dataset,
+                hcaes(x = datetime_to_timestamp(lubridate::ymd(date)), y = CPF),
+                type = "line",
+                color = hex_to_rgba("red", 0.5)) %>%
+  hc_add_series(name = "Flight plan",
+                data = dataset,
+                hcaes(x = datetime_to_timestamp(lubridate::ymd(date)), y = FTFM), 
+                type = "line",
+                color = hex_to_rgba("blue", 0.5),
+                showInNavigator = TRUE) %>%
+  hc_add_series(name = "Shortest constraint route",
+                data = dataset,
+                hcaes(x = datetime_to_timestamp(lubridate::ymd(date)), y = SCR), 
+                type = "line",
+                color = hex_to_rgba("green", 0.5),
+                showInNavigator = TRUE) %>%
+  hc_yAxis(min = 90, title = list(text = "efficiency (%)")) %>%
+  hc_xAxis(type = 'datetime', labels = list(format = '{value:%b %d}')) %>%
+  hc_tooltip(valueDecimals = 2)
+```
+
+### Title 2 {data-width=400}
+
+```{r}
+```
+
+Tab 2
+=======================================================================
+  
+### Recent Downlads
+  
+```{r}
+
+```
