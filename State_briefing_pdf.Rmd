@@ -2,45 +2,56 @@
 title: "`r paste0('ANS performance briefing - ', State_curr)`"
 author: "EUROCONTROL Performance Review Unit"
 date: "`r format(Sys.Date(), '%d/%b/%Y')`"
-site: bookdown::bookdown_site
 output:
   bookdown::pdf_document2:
+    fig_width: 6.3
+    fig_height: 4.7
+    fig_caption: true
     highlight: tango
     toc: FALSE
-documentclass: book
 bibliography: "bibliography.bib"
+csl: ieee.csl
 link-citations: yes
 colorlinks: yes
 monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 cover-image: images/logo.png
+graphics: yes
+header-includes: 
+- \usepackage{float}
+- \floatplacement{figure}{H} #make every figure with caption = h
+urlcolor: blue
+subparagraph: yes
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, echo=FALSE, include=FALSE}
-
-library(dplyr)
-library(ggplot2)
-library(viridis)
-library(lubridate)
-library(scales)
-library(ectrlplot)
-library(tidyquant)
 
 # run setup script
 source("_common.R")
 
 options(tinytex.verbose = TRUE)
+opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, error=FALSE, out.width = "\\textwidth")
+panderOptions('table.alignment.default', function(df)
+  ifelse(sapply(df, is.numeric), 'right', 'left'))
+panderOptions('table.split.table', Inf)
+panderOptions('big.mark', ",")
+panderOptions('keep.trailing.zeros', TRUE)
+panderOptions('round', 4)
 
-knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, error=FALSE, out.width = "\\textwidth")
 ```
 
+```{r, echo=FALSE}
+# Next paragraph
+```
 
+```{r ECTL-logo, fig.align='center'}
+include_graphics('images/logo.png', dpi = NA)
+```
 
+\newpage
 # Preface {-}
-
-```{r ECTL-logo, fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html')}
-knitr::include_graphics('images/logo.png', dpi = NA)
-```
 
 This performance briefing has been prepared by the EUROCONTROL Performance Review Unit (PRU) in the interest of the exchange of information.
 
@@ -50,9 +61,10 @@ The information may be copied in whole or in part providing that the copyright n
 
 The views expressed herein do not necessarily reflect the official views or policy of EUROCONTROL, which makes no warranty, either implied or express, for the information contained in this document, neither does it assume any legal liability or responsibility for the accuracy, completeness or usefulness of this information.
 
-## Key observations {-}
+\newpage
+# Key observations {-}
 
-### TRAFFIC {-}
+<p style="font-weight:600; font-size:36px">TRAFFIC</p>
 
 - Following the high traffic increase already in 2017 ..
 
@@ -60,35 +72,35 @@ The views expressed herein do not necessarily reflect the official views or poli
 
 - As a result ..
 
-### SAFETY {-}
+<p style="font-weight:600; font-size:36px">SAFETY</p>
 
 - No data available
 
-### CAPACITY {-}
+<p style="font-weight:600; font-size:36px">CAPACITY</p>
 
-#### En-route ATFM delays {-}
+<p style="font-weight:600; font-size:30px">En-route ATFM delays</p>
 
 - No en-route ATFM delay..
 
-#### Airport arrival ATFM delays {-}
+<p style="font-weight:600; font-size:30px">Airport arrival ATFM delays</p>
 
 - No airport arrival ATFM delay..
 
-### ENVIRONMENT {-}
+<p style="font-weight:600; font-size:36px">ENVIRONMENT</p>
 
-#### Horizontal en-route flight efficiency {-}
+<p style="font-weight:600; font-size:30px">Horizontal en-route flight efficiency</p>
 
 - In 2008, Finland..
 
-#### Vertical en-route flight efficiency {-}
+<p style="font-weight:600; font-size:30px">Vertical en-route flight efficiency</p>
 
 
 
-#### Vertical flight efficiency during climb and descent {-}
+<p style="font-weight:600; font-size:30px">Vertical flight efficiency during climb and descent</p>
 
 
 
-### COST-EFFECTIVENESS {-}
+<p style="font-weight:600; font-size:36px">COST-EFFECTIVENESS</p>
 
 - ARMATS represents.. see [@pru:ace-report-2015]
 
@@ -96,61 +108,40 @@ The views expressed herein do not necessarily reflect the official views or poli
 
 - Compared to the..
 
-
+\newpage
 
 ```{=latex}
 % Trigger ToC creation in LaTeX
 \tableofcontents
 ```
 
-
+\newpage
 
 ```{=latex}
 \listoffigures
 ```
 
-
-
+\newpage
 # Institutional arrangements
 
 
+\newpage
 # Traffic characteristics
 
+Sources: NM; STATFOR[@7year-forecast-2019]; PRU ANS Performance Data Portal [@ANS-perf-data-portal]; CRCO Service Unit Dashboard [@service-unit-dashboard]
 
-# Safety
+```{r Tfc-overview, echo=FALSE}
 
-
-# Capacity
-
-```{r enr-setup, echo = FALSE, message = FALSE, warning=FALSE}
-
-# En-route ATFM delay
-
-state_under_review <- "NATS"
-
-# choose a date =>
-year_start <- "2015-01-01"
-# choose a date <=
-year_end <- "2019-01-31"
-
-# year of the average en route ATFM delay per flight (ECTL area)
-year_input <- "2018"
-# reference year 
-ref_year <- "2017"
-
-# Airport arrival ATFM delays
-
-airport <- "Bergen"
-since <- "2014"
-to <- "2019"
-
-# Read data
-
-source("R/capacity/read-ert-dly.R")
-source("R/capacity/read-apt-dly.R")
+include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
 ```
 
+\newpage
+# Safety
+
+
+\newpage
+# Capacity
 
 ## Air traffic flow management (ATFM) delays
 
@@ -160,88 +151,15 @@ Source : NM, PRU ANS Performance Data Portal
 
 ### En-route ATFM delays
 
-```{r enr-flights, echo=FALSE, fig.cap="Flights", fig.align='center'}
 
-source("R/capacity/plot-flights.R")
-flights_function(year_start, year_end, state_under_review)
-
-```
-
-
-
-```{r enr-delay, fig.cap="En-route ATFM delay"}
-
-source("R/capacity/plot-delays.R")
-delays(year_start, year_end, state_under_review)
-
-```
-
-
-
-```{r enr-avg-dly-flt, fig.cap="Average en-route ATFM delay per flight"}
-
-source("R/capacity/plot-avg-dly-flt.R")
-avg_delay_flight(year_start, year_end, state_under_review)
-
-```
-
-
-
-```{r enr-average-delay-grouped, fig.cap='Average en route ATFM delay per flight (EUROCONTROL area)'}
-
-source("R/capacity/plot-avg-grouped-dly-flt.R")
-avg_delay_grouped(year_input, ref_year)
-
-```
 
 ### Airport arrival ATFM delays
 
-(ref:avg-arriv-delay) Airport arrival ATFM delays (`r airport`). 
-
-```{r apt-avg-arriv-delay, fig.cap='(ref:avg-arriv-delay)'}
-
-source("R/capacity/plot-avg-arr-dly.R")
-apt_arrival_dly(airport, since, to)
-
-```
-
-(ref:avg-daily-arr) Airport arrival ATFM delays (`r airport`). 
-
-```{r apt-avg-daily-arr, fig.cap='(ref:avg-daily-arr)'}
-
-source("R/capacity/plot-avg-daily-arr.R")
-avg_daily_arrivals(airport, since, to)
-
-```
 
 
 
+\newpage
 # Environment
-
-```{r env-setup, echo = FALSE, message = FALSE, warning=FALSE}
-
-# Horizontal flight efficieny
-# year for hfe
-year_input <- "2018"
-year_input_start <- "2014"
-
-# type of trajectory 
-model <- "CPF"
-
-# state
-state_under_review <- "Sweden"
-
-# choose a start date =>
-year_start <- "2014-01-01"
-# choose an end date <=
-year_end <- "2018-12-31"
-
-# Read data
-
-source("R/environment/read-hfe.R")
-
-```
-
 
 Source : PRU ANS Performance Data Portal 
          The data in this section is from the PRU ANS performance data portal (data section).  
@@ -249,90 +167,34 @@ Source : PRU ANS Performance Data Portal
 
 ## Horizontal flight efficiency
 
-(ref:hfe-year) Horizontal en-route flight efficiency - (`r state_under_review`). 
 
-```{r hfe-year, fig.cap='(ref:hfe-year)'}
-
-source("R/environment/plot-hfe-year.R")
-hfe_year(year_input_start, year_input, state_under_review)
-
-```
-
-(ref:hfe-daily) Horizontal en-route flight efficiency - (`r state_under_review`). 
-
-```{r hfe-daily, fig.cap='(ref:hfe-daily)'}
-
-source("R/environment/plot-hfe-daily.R")
-hfe_daily(year_start, year_end, state_under_review)
-
-```
-
-(ref:flt-eff) Horizontal en-route flight efficiency by State (actual trajectories - `r year_input`). 
-
-```{r hfe-flt-eff, fig.cap='(ref:flt-eff)'}
-
-source("R/environment/plot-flt-efficiency.R")
-flt_eff(year_input, model)
-
-```
 
 ```{r hfe-values, echo = FALSE, message = FALSE}
-value <- all_countries %>%
-  filter(type_model == model) %>% 
-  filter(entity_name != "Morocco" & entity_name != "Spain (Canarias)" & 
-           entity_name != "Spain (Continental)") %>%
-  filter(yyyy == year_input) %>% 
-  group_by(entity_name, yyyy) %>%
-  summarise(flt_efficiency = sum(flt_efficiency)) %>%
-  mutate(flt_eff = 100 - flt_efficiency)
-
-avg_ectl <- round(sum(value$flt_eff)/length(value$flt_eff), 1)
+avg_ectl <- round(sum(all_countries$flt_eff)/length(all_countries$flt_eff), 1)
 avg_ectl <- paste0(avg_ectl, "%")
 ```
 
 - Horizontal en-route flight efficiency (actual trajectory) was  `r avg_ectl` 
 in the EUROCONTROL area in `r year_input`. 
 
-(ref:avg-add) Horizontal en-route flight efficiency by State (actual trajectories - `r year_input`). 
-
-```{r hfe-avg-add, fig.cap='(ref:avg-add)'}
-
-source("R/environment/read-ert-dly-fir.R")
-source("R/environment/plot-avg-add-per-flt.R")
-avg_add_flt(year_input, model)
-
-```
-
-(ref:tot-share) Horizontal en-route flight efficiency by State (actual trajectories - `r year_input`). 
-
-```{r hfe-tot-share, fig.cap='(ref:tot-share)'}
-
-source("R/environment/plot-total-share.R")
-add_total_share(year_input, model)
-
-```
-
-(ref:add-flown) Horizontal en-route flight efficiency by State (actual trajectories - `r year_input`). 
-
-```{r hfe-add-flown, fig.cap='(ref:add-flown)'}
-
-source("R/environment/plot-add-flown.R")
-add_flown(year_input, model)
-
-```
 
 
+
+\newpage
 # Cost-effectiveness
 
 
+\newpage
 # Annex 1: Evolution of cost-effectiveness performance (2012-2017)
 
 
+\newpage
 # Annex 2: Network Operations Plan (2018-2019/22)
 
 ## YEREVAN ACC
 
 
+\newpage
 # References
 
 

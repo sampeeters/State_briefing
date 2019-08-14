@@ -1,6 +1,4 @@
-delays<- function(year_start, year_end, state_under_review) {
-  
-  year_start <- ymd(year_start)
+year_start <- ymd(year_start)
   year_end <- ymd(year_end)
   
   entity_details_mm12 <- enr_all_details %>% filter(entity_name == state_under_review) %>%
@@ -37,7 +35,6 @@ delays<- function(year_start, year_end, state_under_review) {
   add_logo(plot_name = ert_dly_12m_plot,
            source = "Source: PRU analysis",
            width_pixels = 640,
-           height_pixels = 450)
+           height_pixels = 450,
+           save_filepath = paste0(dir, "Figures/ENR_ATFM_delays_", state_under_review, ".png"))
   
-  # ert_dly_12m_plot
-}

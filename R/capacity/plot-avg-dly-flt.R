@@ -1,6 +1,4 @@
-avg_delay_flight <- function(year_start, year_end, state_under_review){
-  
-  year_start <- ymd(year_start)
+year_start <- ymd(year_start)
   year_end <- ymd(year_end)
   
   all_details_mm12 <- enr_all_details %>% filter(entity_name == state_under_review) %>%
@@ -36,8 +34,5 @@ avg_delay_flight <- function(year_start, year_end, state_under_review){
   add_logo(plot_name = avg_dly_12m_plot,
            source = "Source: PRU analysis",
            width_pixels = 640,
-           height_pixels = 450)
-  
-  # avg_dly_12m_plot
-  
-}
+           height_pixels = 450,
+           save_filepath = paste0(dir, "Figures/Avg_ENR_ATFM_delay_flight_", state_under_review, ".png"))

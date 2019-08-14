@@ -1,16 +1,14 @@
 # flight efficiency
 
 # compute indicators
-all <- all %>%
+all1 <- all %>%
   mutate(additional_flown_km = (dist_flown_km - dist_achieved_km),
          flt_efficiency = ((dist_flown_km / dist_achieved_km) -1)) 
 
 # countries
-all_countries <- all %>%
+all_countries <- all1 %>%
   filter(entity_type == "State (FIR)")
 
-flt_eff <- function(year_input, model){
-  
 all_countries <- all_countries %>%
   filter(type_model == model) %>% 
   filter(entity_name != "Morocco" & entity_name != "Spain (Canarias)" & entity_name != "Spain (Continental)") %>%
@@ -41,6 +39,4 @@ flight_efficiency <- g +
     title = "",
     subtitle = "") + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.4))
-
-flight_efficiency
-}
+rm(all1)

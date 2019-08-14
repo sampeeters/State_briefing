@@ -1,10 +1,3 @@
-library(dplyr)
-library(readr)
-library(stringr)
-library(purrr)
-library(lubridate)
-library(tidyr)
-
 
 all=read.xlsx("https://coll.eurocontrol.int/sites/pru/dashboard/Data/Airport_Arrival_ATFM_Delay.xlsx", sheet="DATA") %>% 
   mutate(MONTH_MON = as.character(MONTH_MON),

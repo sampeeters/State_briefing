@@ -1,11 +1,3 @@
-library(dplyr)
-library(readr)
-library(stringr)
-library(purrr)
-library(lubridate)
-library(tidyr)
-library(openxlsx)
-
 
 all=read.xlsx("https://coll.eurocontrol.int/sites/pru/dashboard/Data/En-Route_ATFM_Delay_AUA.xlsx", sheet="DATA") %>% 
   mutate(YEAR = as.integer(YEAR),

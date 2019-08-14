@@ -1,4 +1,4 @@
-\documentclass[]{book}
+\documentclass[]{article}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
@@ -22,6 +22,7 @@
 \usepackage{microtype}
 \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
+\usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \PassOptionsToPackage{usenames,dvipsnames}{color} % color is loaded by hyperref
 \hypersetup{unicode=true,
@@ -30,7 +31,7 @@
             colorlinks=true,
             linkcolor=Maroon,
             citecolor=Blue,
-            urlcolor=Blue,
+            urlcolor=blue,
             breaklinks=true}
 \urlstyle{same}  % don't use monospace font for urls
 \usepackage{longtable,booktabs}
@@ -53,15 +54,6 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{5}
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
-\fi
 
 %%% Use protect on footnotes to avoid problems with footnotes in titles
 \let\rmarkdownfootnote\footnote%
@@ -87,15 +79,21 @@
   \postauthor{\par}
       \predate{\centering\large\emph}
   \postdate{\par}
-    \date{07/Aug/2019}
+    \date{08/Aug/2019}
 
+\usepackage{float}
+\floatplacement{figure}{H}
 
 \begin{document}
 \maketitle
 
+\begin{center}\includegraphics[width=\textwidth]{images/logo} \end{center}
+
+\newpage
+
 \hypertarget{preface}{%
-\chapter*{Preface}\label{preface}}
-\addcontentsline{toc}{chapter}{Preface}
+\section*{Preface}\label{preface}}
+\addcontentsline{toc}{section}{Preface}
 
 This performance briefing has been prepared by the EUROCONTROL Performance Review Unit (PRU) in the interest of the exchange of information.
 
@@ -104,6 +102,8 @@ If you have any questions related to this document or if we can help with any AN
 The information may be copied in whole or in part providing that the copyright notice and disclaimer are included.
 
 The views expressed herein do not necessarily reflect the official views or policy of EUROCONTROL, which makes no warranty, either implied or express, for the information contained in this document, neither does it assume any legal liability or responsibility for the accuracy, completeness or usefulness of this information.
+
+\newpage
 
 \hypertarget{key-observations}{%
 \section*{Key observations}\label{key-observations}}
@@ -184,68 +184,162 @@ The views expressed herein do not necessarily reflect the official views or poli
 
 \begin{itemize}
 \item
-  ARMATS represents.. see (Performance Review Unit \protect\hyperlink{ref-pru:ace-report-2015}{2017})
+  ARMATS represents.. see {[}\protect\hyperlink{ref-pru:ace-report-2015}{1}{]}
 \item
   Since ARMATS did not..
 \item
   Compared to the..
 \end{itemize}
 
+\newpage
+
 % Trigger ToC creation in LaTeX
 \tableofcontents
 
+\newpage
+
 \listoffigures
 
+\newpage
+
 \hypertarget{institutional-arrangements}{%
-\chapter{Institutional arrangements}\label{institutional-arrangements}}
+\section{Institutional arrangements}\label{institutional-arrangements}}
+
+\newpage
 
 \hypertarget{traffic-characteristics}{%
-\chapter{Traffic characteristics}\label{traffic-characteristics}}
+\section{Traffic characteristics}\label{traffic-characteristics}}
+
+Sources: NM; {[}\protect\hyperlink{ref-7year-forecast-2019}{2}{]}
+
+\newpage
 
 \hypertarget{safety-1}{%
-\chapter{Safety}\label{safety-1}}
+\section{Safety}\label{safety-1}}
+
+\newpage
 
 \hypertarget{capacity-1}{%
-\chapter{Capacity}\label{capacity-1}}
+\section{Capacity}\label{capacity-1}}
 
 \hypertarget{air-traffic-flow-management-atfm-delays}{%
-\section{Air traffic flow management (ATFM) delays}\label{air-traffic-flow-management-atfm-delays}}
+\subsection{Air traffic flow management (ATFM) delays}\label{air-traffic-flow-management-atfm-delays}}
 
 Source : NM, PRU ANS Performance Data Portal\\
 The data in this section is from the PRU ANS performance data portal (data section).\\
 It is available at: \url{http://ansperformance.eu/data/performancearea/}
 
 \hypertarget{en-route-atfm-delays-1}{%
-\subsection{En-route ATFM delays}\label{en-route-atfm-delays-1}}
+\subsubsection{En-route ATFM delays}\label{en-route-atfm-delays-1}}
 
 \begin{figure}
 
-{\centering \includegraphics[width=\textwidth]{Test\State briefing UK_files/figure-latex/enr-flights-1} 
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/Nbr_flights_NATS (Continental)} 
 
 }
 
-\caption{Flights}(\#fig:enr-flights)
+\caption{Number of flights}(\#fig:enr-flights)
 \end{figure}
 
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/ENR_ATFM_delays_NATS (Continental)} 
+
+}
+
+\caption{En-route ATFM delay}(\#fig:enr-delay)
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/Avg_ENR_ATFM_delay_flight_NATS (Continental)} 
+
+}
+
+\caption{Average en-route ATFM delay per flight}(\#fig:enr-avg-dly-flt)
+\end{figure}
+
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/Avg_ENR_ATFM_delay_flight_group_NATS (Continental)} 
+
+}
+
+\caption{Average en route ATFM delay per flight (EUROCONTROL area)}(\#fig:enr-average-delay-grouped)
+\end{figure}
+
+\hypertarget{airport-arrival-atfm-delays-1}{%
+\subsubsection{Airport arrival ATFM delays}\label{airport-arrival-atfm-delays-1}}
+
+\hypertarget{environment-1}{%
+\section{Environment}\label{environment-1}}
+
+Source : PRU ANS Performance Data Portal
+The data in this section is from the PRU ANS performance data portal (data section).\\
+It is available at: \url{http://ansperformance.eu/data/performancearea/}
+
+\hypertarget{horizontal-flight-efficiency}{%
+\subsection{Horizontal flight efficiency}\label{horizontal-flight-efficiency}}
+
+(ref:hfe-year) Horizontal en-route flight efficiency - (NATS (Continental)).
+
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/HFE_year_NATS (Continental)} 
+
+}
+
+\caption{(ref:hfe-year)}(\#fig:hfe-year)
+\end{figure}
+
+(ref:hfe-daily) Horizontal en-route flight efficiency - (NATS (Continental)).
+
+\begin{figure}
+
+{\centering \includegraphics[width=\textwidth]{G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/Figures/HFE_day_NATS (Continental)} 
+
+}
+
+\caption{(ref:hfe-daily)}(\#fig:hfe-daily)
+\end{figure}
+
+\begin{itemize}
+\tightlist
+\item
+  Horizontal en-route flight efficiency (actual trajectory) was 91.9\%
+  in the EUROCONTROL area in 2018.
+\end{itemize}
+
+\newpage
+
 \hypertarget{cost-effectiveness-1}{%
-\chapter{Cost-effectiveness}\label{cost-effectiveness-1}}
+\section{Cost-effectiveness}\label{cost-effectiveness-1}}
+
+\newpage
 
 \hypertarget{annex-1-evolution-of-cost-effectiveness-performance-2012-2017}{%
-\chapter{Annex 1: Evolution of cost-effectiveness performance (2012-2017)}\label{annex-1-evolution-of-cost-effectiveness-performance-2012-2017}}
+\section{Annex 1: Evolution of cost-effectiveness performance (2012-2017)}\label{annex-1-evolution-of-cost-effectiveness-performance-2012-2017}}
+
+\newpage
 
 \hypertarget{annex-2-network-operations-plan-2018-201922}{%
-\chapter{Annex 2: Network Operations Plan (2018-2019/22)}\label{annex-2-network-operations-plan-2018-201922}}
+\section{Annex 2: Network Operations Plan (2018-2019/22)}\label{annex-2-network-operations-plan-2018-201922}}
 
 \hypertarget{yerevan-acc}{%
-\section{YEREVAN ACC}\label{yerevan-acc}}
+\subsection{YEREVAN ACC}\label{yerevan-acc}}
+
+\newpage
 
 \hypertarget{references}{%
-\chapter*{References}\label{references}}
-\addcontentsline{toc}{chapter}{References}
+\section*{References}\label{references}}
+\addcontentsline{toc}{section}{References}
 
 \hypertarget{refs}{}
 \leavevmode\hypertarget{ref-pru:ace-report-2015}{}%
-Performance Review Unit. 2017. ``ATM Cost-Effectiveness (Ace) 2015 Benchmarking Report with 2016-2020 Outlook.'' Report. Eurocontrol/PRU. \url{http://www.eurocontrol.int/sites/default/files/publication/files/final-ace-2015-benchmarking-report.pdf}.
+{[}1{]} Performance Review Unit, ``ATM cost-effectiveness (ace) 2015 benchmarking report with 2016-2020 outlook,'' EUROCONTROL/PRU, Report, May 2017.
+
+\leavevmode\hypertarget{ref-7year-forecast-2019}{}%
+{[}2{]} STATFOR, ``EUROCONTROL seven-year forecast february 2019,'' EUROCONTROL/STATFOR, Report, 2017.
 
 
 \end{document}

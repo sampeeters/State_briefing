@@ -1,15 +1,13 @@
 # daily 
 
-hfe_daily <- function(year_start, year_end, state_under_review){
-
-all <- all %>%
+all1 <- all %>%
   filter(entity_name == state_under_review) %>% 
   mutate(var = ((dist_flown_km / dist_achieved_km) -1)*100) %>%
   select(date, type_model, var) %>%
   mutate(perc = 100 - var) %>%
   filter(date >= year_start & date <= year_end)
 
-ggplot(all, aes(x = as.POSIXct(date), y = perc)) + 
+g=ggplot(all1, aes(x = as.POSIXct(date), y = perc)) + 
   geom_line(aes(color = type_model), size = 1, alpha = 0.5) +
   geom_ma(ma_fun = SMA, n = 30, aes(color = type_model), # linetype
           show.legend = TRUE, size = 1) +  # simple moving avg
@@ -23,4 +21,8 @@ ggplot(all, aes(x = as.POSIXct(date), y = perc)) +
                      values = c("#b2182b", "#2166ac", "#450000")) +
   labs(y = "Efficiency", x = "") +
   theme(legend.position="bottom")
-}
+add_logo(plot_name = g,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/HFE_day_", state_under_review, ".png"))
