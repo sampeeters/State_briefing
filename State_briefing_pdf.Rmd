@@ -130,7 +130,7 @@ The views expressed herein do not necessarily reflect the official views or poli
 
 Sources: NM; STATFOR[@7year-forecast-2019]; PRU ANS Performance Data Portal [@ANS-perf-data-portal]; CRCO Service Unit Dashboard [@service-unit-dashboard]
 
-```{r Tfc-overview, echo=FALSE}
+```{r Tfc-overview, echo=FALSE, fig.cap="Traffic characteristics (IFR flights)", fig.align='center'}
 
 include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
@@ -165,7 +165,7 @@ Source : PRU ANS Performance Data Portal
          The data in this section is from the PRU ANS performance data portal (data section).  
          It is available at: <http://ansperformance.eu/data/performancearea/>
 
-## Horizontal flight efficiency
+## Horizontal en-route flight efficiency
 
 
 
@@ -177,7 +177,9 @@ avg_ectl <- paste0(avg_ectl, "%")
 - Horizontal en-route flight efficiency (actual trajectory) was  `r avg_ectl` 
 in the EUROCONTROL area in `r year_input`. 
 
+## Vertical en-route flight efficiency
 
+## Vertical flight efficiency during climb & descent
 
 
 \newpage

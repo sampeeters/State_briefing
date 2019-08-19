@@ -34,14 +34,15 @@ Traffic_evolution_state=select(Traffic_evolution_state, -Value, -Colour)
 names(Traffic_evolution_state)=c(paste0("Traffic evolution (", State_curr, ")"), "", "")
 
 Traffic_evolution_state_table1=tableGrob(Traffic_evolution_state[1:2], rows=NULL, 
-                                        theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0)),
-                                                             rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                             colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                                        theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10)),
+                                                             rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                             colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                                           bg_params=list(fill="#3399cc"))))
 Traffic_evolution_state_table2=tableGrob(Traffic_evolution_state[3], rows=NULL, 
-                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0,col=Tfc_ev_state_colours)),
-                                                              rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                              colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, 
+                                                                                       fontsize=10, col=Tfc_ev_state_colours)),
+                                                              rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                              colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                                            bg_params=list(fill="#3399cc"))))
 Traffic_evolution_state_table=gtable_combine(Traffic_evolution_state_table1, Traffic_evolution_state_table2)
 Traffic_evolution_state_table$widths = unit(c(0.73, 0.15, 0.12), "npc")
@@ -68,9 +69,10 @@ Tfc_data_seasonality_plot=ggplot(Tfc_data_seasonality) +
   geom_line(aes(x=MONTH_MON, y=Avg_daily_flights, colour=factor(YEAR), group=YEAR), size=2) +
   theme_pru() +
   scale_color_pru() +
-  ylim(c(4000, 11000)) +
+  # ylim(c(4000, max(Tfc_data_seasonality$Avg_daily_flights))) +
   labs(y="Average daily flights", title = "Seasonality") +
-  theme(axis.text.x = element_text(angle=90))
+  theme(axis.text.x = element_text(angle=90),
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm"))
 add_logo(plot_name = Tfc_data_seasonality_plot,
          source = "Source: PRU analysis",
          width_pixels = 640,
@@ -123,20 +125,21 @@ names(Tfc_groups_table)=c(paste0(State_curr, ifelse(curr_month==1, " (Jan)", pas
                           paste0("vs ", curr_year-1))
 
 Tfc_groups_table1=tableGrob(Tfc_groups_table[1], rows=NULL, 
-                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0),
+                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10),
                                                                         bg_params=list(fill=c("#d9d9d9", pru_pal()(3)))),
-                                                              rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                              colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                                                              rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                              colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                                            bg_params=list(fill="#3399cc"))))
 Tfc_groups_table2=tableGrob(Tfc_groups_table[2], rows=NULL, 
-                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0)),
-                                                 rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                 colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10)),
+                                                 rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                 colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                               bg_params=list(fill="#3399cc"))))
 Tfc_groups_table3=tableGrob(Tfc_groups_table[3], rows=NULL, 
-                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0,col=Tfc_groups_table_colours)),
-                                                              rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                              colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                                         theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, 
+                                                                                       fontsize=10,col=Tfc_groups_table_colours)),
+                                                              rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                              colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                                            bg_params=list(fill="#3399cc"))))
 Tfc_groups_table=gtable_combine(Tfc_groups_table1, Tfc_groups_table2, Tfc_groups_table3)
 Tfc_groups_table$widths = unit(c(0.6, 0.2, 0.2), "npc")
@@ -159,11 +162,12 @@ Tfc_groups_pie_plot=ggplot(Tfc_groups_pie) +
   scale_fill_pru() +
   theme_void()+
   coord_fixed() +
-  scale_x_continuous(limits = c(-1.5, 1.4),  # Adjust so labels are not cut off
+  scale_x_continuous(limits = c(-2, 2),  # Adjust so labels are not cut off
                      name = "", breaks = NULL, labels = NULL) +
-  scale_y_continuous(limits = c(-1, 1.1),      # Adjust so labels are not cut off
+  scale_y_continuous(limits = c(-1.2, 1.2),      # Adjust so labels are not cut off
                      name = "", breaks = NULL, labels = NULL) +
-  theme(legend.title = element_blank()) +
+  theme(legend.title = element_blank(),
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")) +
   labs(title = State_curr)
 add_logo(plot_name = Tfc_groups_pie_plot,
          source = "Source: PRU analysis",
@@ -218,20 +222,20 @@ names(Tfc_segments_table)=c(paste0(State_curr, ifelse(curr_month==1, " (Jan)", p
                             paste0("vs ", curr_year-1))
 
 Tfc_segments_table1=tableGrob(Tfc_segments_table[1], rows=NULL, 
-                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0),
+                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10),
                                                            bg_params=list(fill=c(pru_pal()(7)))),
-                                                 rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                 colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                                                 rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                 colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                               bg_params=list(fill="#3399cc"))))
 Tfc_segments_table2=tableGrob(Tfc_segments_table[2], rows=NULL, 
-                              theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0)),
-                                                   rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                   colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                              theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10)),
+                                                   rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                   colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                                 bg_params=list(fill="#3399cc"))))
 Tfc_segments_table3=tableGrob(Tfc_segments_table[3], rows=NULL, 
-                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0,col=Tfc_segments_table_colours)),
-                                                 rowhead=list(fg_params=list(hjust=0, x=0)),
-                                                 colhead=list(fg_params=list(hjust=0, x=0, col="#eeece1"),
+                            theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10, col=Tfc_segments_table_colours)),
+                                                 rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                 colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
                                                               bg_params=list(fill="#3399cc"))))
 Tfc_segments_table=gtable_combine(Tfc_segments_table1, Tfc_segments_table2, Tfc_segments_table3)
 Tfc_segments_table$widths = unit(c(0.6, 0.2, 0.2), "npc")
@@ -249,16 +253,19 @@ Tfc_segments_pie=filter(Tfc_segments, YEAR==curr_year) %>%
 Tfc_segments_pie_plot=ggplot(Tfc_segments_pie) + 
   geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0.6, r = 1,
                    start = start, end = end, fill = RULE_NAME)) +
-  geom_text(aes(x = 1.05 * sin(middle), y = 1.05 * cos(middle), label = paste0(format(round(Share, 1), nsmall=1), "%"),
-                hjust = hjust, vjust = vjust)) +
+  geom_text(aes(x = 1.1 * sin(middle), y = 1.1 * cos(middle), label = paste0(format(round(Share, 1), nsmall=1), "%"),
+                hjust = hjust, vjust = vjust), size=3) +
+  # geom_text_repel(aes(x = 1.1 * sin(middle), y = 1.1 * cos(middle), label = paste0(format(round(Share, 1), nsmall=1), "%"),
+  #                     hjust = hjust, vjust = vjust), size=3) +
   scale_fill_pru() +
   theme_void()+
   coord_fixed() +
-  scale_x_continuous(limits = c(-1.5, 1.4),  # Adjust so labels are not cut off
+  scale_x_continuous(limits = c(-2, 2),  # Adjust so labels are not cut off
                      name = "", breaks = NULL, labels = NULL) +
-  scale_y_continuous(limits = c(-1, 1.1),      # Adjust so labels are not cut off
+  scale_y_continuous(limits = c(-1.2, 1.2),      # Adjust so labels are not cut off
                      name = "", breaks = NULL, labels = NULL) +
-  theme(legend.title = element_blank()) +
+  theme(legend.title = element_blank(),
+        plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), "cm")) +
   labs(title = State_curr)
 add_logo(plot_name = Tfc_segments_pie_plot,
          source = "Source: PRU analysis",
@@ -280,5 +287,5 @@ g=arrangeGrob(Traffic_evolution_state_table, Tfc_data_seasonality_plot,
              as.table=TRUE,
              heights=c(1, 1, 1, 1),
              widths = c(2, 1.5))
-ggsave(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"), plot=g, width = 20, height = 25, units = "cm", dpi=200)
+ggsave(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"), plot=g, width = 20, height = 21, units = "cm", dpi=200)
 

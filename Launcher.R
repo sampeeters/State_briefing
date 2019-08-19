@@ -17,6 +17,7 @@ library(knitr)
 library(chron)
 library(ggforce)
 library(gridExtra)
+library(ggrepel)
 
 dir="G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/"
 Sys.setenv(TZ = "UTC")
