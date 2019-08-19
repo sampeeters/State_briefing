@@ -53,7 +53,7 @@ Traffic_evolution_state_table$widths = unit(c(0.73, 0.15, 0.12), "npc")
 # SEASONALITY
 
 
-Seasonality_days=filter(Nbr_days_data, UNIT_NAME=="EUROCONTROL", YEAR %in% c(2008, curr_year-2, curr_year-1, curr_year)) %>% 
+Seasonality_days=filter(PRU_FAC_data, UNIT_NAME=="EUROCONTROL", YEAR %in% c(2008, curr_year-2, curr_year-1, curr_year)) %>% 
   group_by(YEAR, MONTH) %>% 
   summarise(Nbr_days=n())
 
@@ -101,7 +101,12 @@ Tfc_groups=filter(STATFOR_data, YEAR %in% c(curr_year-1, curr_year) & TZ_NAME==S
   mutate(Diff_perc=(Nbr_flights-lag(Nbr_flights))/lag(Nbr_flights)*100) %>% 
   ungroup() %>% 
   group_by(TZ_NAME, YEAR) %>% 
-  mutate(Share=Nbr_flights/sum(Nbr_flights)*100)
+  mutate(Share=Nbr_flights/sum(Nbr_flights)*100,
+         Text=case_when(
+           DAIO2=="Overflights" ~ "overflights",
+           DAIO2== "To/from" ~ paste0("traffic from and to ", ifelse(State_curr=="UK", "the ", ""), State_curr),
+           DAIO2== "Internal" ~ "domestic flights"),
+         DAIO2=factor(DAIO2, levels = Groups))
 
 Tot_flights_diff=(sum(filter(Tfc_groups, YEAR==curr_year)$Nbr_flights)-sum(filter(Tfc_groups, YEAR==curr_year-1)$Nbr_flights))/
   sum(filter(Tfc_groups, YEAR==curr_year-1)$Nbr_flights)*100

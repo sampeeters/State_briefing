@@ -136,6 +136,11 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
 ```
 
+* Traffic in the UK has been growing steadily since 2013. In `r curr_year-1`, traffic increased by +0.9% which was in line with the low traffic scenario in the Feb. 2018 STATFOR forecast. Between 2013 and 2018, traffic increased by 15.0% to reach a level comparable to the pre-crisis level of `r STATFOR_start_year`
+* In the first `r curr_month-1` months of `r curr_year`, traffic in the UK increased by +1.7% compared to the same period in `r curr_year-1`
+* The largest traffic segment is `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[1]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[1], 1), nsmall=1)`%), followed by `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[2]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[2], 1), nsmall=1)`%) and `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[3]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[3], 1), nsmall=1)`%).
+* According to the latest available forecast, (STATFOR `r STATFOR_version`), traffic in the UK is expected to grow at an annual average rate of 1.4% between `r curr_year` and 2025 (baseline scenario) [High:+2.2; Low:+0.2%]. A controlled Brexit is considered in the baseline scenario, while a hard Brexit is considered in the low scenario.
+
 \newpage
 # Safety
 
@@ -145,7 +150,7 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
 ## Air traffic flow management (ATFM) delays
 
-Source : NM, PRU ANS Performance Data Portal  
+Source : NM, PRU ANS Performance Data Portal [@ANS-perf-data-portal]
          The data in this section is from the PRU ANS performance data portal (data section).  
          It is available at: <http://ansperformance.eu/data/performancearea/>
 

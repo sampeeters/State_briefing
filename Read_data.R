@@ -20,7 +20,7 @@ where f.lobt >= '01-JAN-2008'
       --and c.tz_name = 'ESRA08'
       and (c.tr_name like 'ESRA%' or c.tr_name like 'Other Europe' or c.tr_name like 'TR-ESRA 2008' or c.tr_name like 'TR-ECAC')   
 group by c.tz_name , lobt, daio , r.sk_flt_type_rule_id, R.RULE_NAME order by lobt"))
-Nbr_days_data=dbGetQuery(con, paste0("SELECT * 
+PRU_FAC_data=dbGetQuery(con, paste0("SELECT * 
                                      FROM PRUDEV.V_PRU_FAC_TDC_DD 
                                      WHERE UNIT_PRU_TYPE in ('ANSP','ZONE', 'ZONE_ANSP') AND ENTRY_DATE >= '1-JAN-2008'"))
 dbDisconnect(con)

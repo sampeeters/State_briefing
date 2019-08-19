@@ -35,7 +35,7 @@ source("Traffic_characteristics.R")
 
 # En-route ATFM delay
 
-state_under_review <- "LFV"
+ANSP <- "DFS"
 year_start <- "2015-01-01"
 year_end <- "2019-01-31"
 year_input <- "2018"
