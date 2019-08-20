@@ -27,7 +27,7 @@ dbDisconnect(con)
 
 
 con2 <- dbConnect(drv, "PRU_CPLX", Sys.getenv("PRU_CPLX_psw"), dbname=Sys.getenv("DB"))
-CPLX_data=dbGetQuery(con, paste0("
+CPLX_data=dbGetQuery(con2, paste0("
 SELECT TO_CHAR (t.cplx_date, 'YYYY') year,
 EXTRACT (MONTH FROM t.cplx_date) MONTH_NUM,
 TO_CHAR (t.cplx_date, 'MON') MONTH_MON,

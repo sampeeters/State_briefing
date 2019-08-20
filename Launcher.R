@@ -18,6 +18,7 @@ library(chron)
 library(ggforce)
 library(gridExtra)
 library(ggrepel)
+library(reshape2)
 
 dir="G:/HQ/dgof-pru/Project/Vertical_flight_efficiency/2015/State_briefing/"
 Sys.setenv(TZ = "UTC")
@@ -28,6 +29,7 @@ curr_month=as.numeric(format(Sys.Date(), "%m"))
 State_curr="Germany"
 STATFOR_version="Feb. 2019"
 STATFOR_start_year=2008
+BADA_curr="3.13.1"
 
 
 source("Read_data.R")
@@ -40,6 +42,8 @@ year_start <- "2015-01-01"
 year_end <- "2019-01-31"
 year_input <- "2018"
 ref_year <- "2017"
+
+source("Capacity.R")
 
 # Airport arrival ATFM delays
 
