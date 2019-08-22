@@ -150,13 +150,17 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
 ## Air traffic flow management (ATFM) delays
 
-Source : NM, PRU ANS Performance Data Portal [@ANS-perf-data-portal]
+Source: NM, PRU ANS Performance Data Portal [@ANS-perf-data-portal]
          The data in this section is from the PRU ANS performance data portal (data section).  
          It is available at: <http://ansperformance.eu/data/performancearea/>
 
 ### En-route ATFM delays
 
+```{r Capacity-overview, echo=FALSE, fig.cap="Traffic evolution and en-route ATFM delay", fig.align='center'}
 
+include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_capacity_overview.png"))
+
+```
 
 ### Airport arrival ATFM delays
 
