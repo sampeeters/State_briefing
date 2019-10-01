@@ -47,7 +47,7 @@ source("Capacity.R")
 
 # Airport arrival ATFM delays
 
-airport <- "Stockholm"
+airport <- "Frankfurt"
 since <- "2014"
 to <- "2019"
 
