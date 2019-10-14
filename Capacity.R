@@ -533,3 +533,12 @@ g=arrangeGrob(Header_table,
               widths = c(0.25, 0.25, 0.25, 0.25),
               layout_matrix = lay)
 ggsave(paste0(dir, "Figures/", State_curr, "/ENR_capacity_overview.png"), plot=g, width = 20, height = 25, units = "cm", dpi=200)
+
+
+
+
+# Average en route ATFM delay per flight (all ANSPs)
+
+Data_ANSPs=filter(PRU_FAC_data, YEAR == curr_year & MONTH<=curr_month-1) %>% 
+  group_by(UNIT_NAME)
+
