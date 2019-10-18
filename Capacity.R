@@ -1,4 +1,6 @@
 
+## En-route ATFM delays
+
 # Heading key figures
 
 Header=data.frame(Text="", Text2="")
@@ -539,6 +541,492 @@ ggsave(paste0(dir, "Figures/", State_curr, "/ENR_capacity_overview.png"), plot=g
 
 # Average en route ATFM delay per flight (all ANSPs)
 
-Data_ANSPs=filter(PRU_FAC_data, YEAR == curr_year & MONTH<=curr_month-1) %>% 
-  group_by(UNIT_NAME)
+Data_ANSPs=filter(PRU_FAC_data, YEAR %in% c(curr_year-1, curr_year) & MONTH<=curr_month-1) %>% 
+  group_by(UNIT_NAME, YEAR) %>% 
+  summarise(Con_fl=sum(TTF_FLT, na.rm=TRUE),
+            `ATC Capacity [C]`=sum(TDM_ERT_C, na.rm=TRUE)/sum(TTF_FLT, na.rm=TRUE),
+            `ATC Staffing [S]`=sum(TDM_ERT_S, na.rm=TRUE)/sum(TTF_FLT, na.rm=TRUE),
+            `ATC Disruptions [I,T]`=(sum(TDM_ERT_I, na.rm=TRUE)+sum(TDM_ERT_T, na.rm=TRUE))/sum(TTF_FLT, na.rm=TRUE),
+            `Weather [W,D]`=(sum(TDM_ERT_W, na.rm=TRUE)+sum(TDM_ERT_D, na.rm=TRUE))/sum(TTF_FLT, na.rm=TRUE),
+            `Other reasons`=(sum(TDM_ERT_NA, na.rm=TRUE)+sum(TDM_ERT_A, na.rm=TRUE)+sum(TDM_ERT_E, na.rm=TRUE)+sum(TDM_ERT_G, na.rm=TRUE)+
+              sum(TDM_ERT_M, na.rm=TRUE)+sum(TDM_ERT_N, na.rm=TRUE)+sum(TDM_ERT_O, na.rm=TRUE)+sum(TDM_ERT_P, na.rm=TRUE)+
+              sum(TDM_ERT_R, na.rm=TRUE)+sum(TDM_ERT_V, na.rm=TRUE))/sum(TTF_FLT, na.rm=TRUE),
+            Tot_ENR_ATFM_delay=`ATC Capacity [C]`+`ATC Staffing [S]`+`ATC Disruptions [I,T]`+`Weather [W,D]`+`Other reasons`
+  ) %>% 
+  filter(UNIT_NAME %in% FAB_ANSPs$ANSP) %>% 
+  left_join(FAB_ANSPs, by=c("UNIT_NAME"="ANSP")) %>% 
+  arrange(YEAR, FAB, UNIT_NAME)
 
+Data_ANSPs2=filter(Data_ANSPs, YEAR==curr_year) %>%
+  select(-YEAR, -Tot_ENR_ATFM_delay, -Con_fl) %>% 
+  melt(id.vars = c("UNIT_NAME", "FAB"))
+
+Data_ANSPs_prev_year=filter(Data_ANSPs, YEAR==curr_year-1)
+bars=rep(Data_ANSPs_prev_year$Tot_ENR_ATFM_delay, 5)
+
+ENR_delay_flight_bar_plot=ggplot(Data_ANSPs2, aes(x=UNIT_NAME, y=value)) + 
+  geom_bar(aes(fill=variable), stat = "identity")  +
+  geom_text(data = filter(Data_ANSPs, YEAR==curr_year), 
+            aes(UNIT_NAME, Tot_ENR_ATFM_delay+0.05, label=format(round(Tot_ENR_ATFM_delay, 2), nsmall=2), fill=NULL, angle=90))+
+  geom_errorbar(aes(ymin = bars, ymax = bars), 
+                size = 2, colour="black") + 
+  scale_colour_continuous(name="", label=paste0(curr_year-1, " (Jan-", month.abb[curr_month-1], ")")) +
+  facet_grid(.~FAB, scales = "free_x", switch="x") +
+  theme_pru() +
+  scale_fill_pru() +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.margin = margin(1, 1, 1, 1, "mm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_text(size=10),
+        legend.box = "vertical",
+        axis.text.x = element_text(angle = 90, hjust=1, vjust=0.5)) +
+  labs(x="", y="Average delay per flight (min.)", 
+       title = paste0("Average en-route ATFM delay per flight - Jan-", month.abb[curr_month-1], " ", curr_year, " (min)"))
+add_logo(plot_name = ENR_delay_flight_bar_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/ENR_delay_flight_bar.png"))
+
+Changes_vs_prev_year=arrange(Data_ANSPs, UNIT_NAME, YEAR) %>% 
+  mutate(C_diff=`ATC Capacity [C]`-lag(`ATC Capacity [C]`),
+         S_diff=`ATC Staffing [S]`-lag(`ATC Staffing [S]`),
+         IT_diff=`ATC Disruptions [I,T]`-lag(`ATC Disruptions [I,T]`),
+         WD_diff=`Weather [W,D]`-lag(`Weather [W,D]`),
+         Other_diff=`Other reasons`-lag(`Other reasons`),
+         Tot=C_diff+S_diff+IT_diff+WD_diff+Other_diff,
+         Tfc_diff=Con_fl/lag(Con_fl)-1)
+  
+Changes_vs_prev_year2=filter(Changes_vs_prev_year, YEAR==curr_year) %>%
+  select(-YEAR, -Tot_ENR_ATFM_delay, -Con_fl, -`ATC Capacity [C]`, -`ATC Staffing [S]`, -`ATC Disruptions [I,T]`, -`Weather [W,D]`, 
+         -`Other reasons`, -Tfc_diff, -Tot) %>% 
+  rename(`ATC Capacity [C]`=C_diff, `ATC Staffing [S]`=S_diff, `ATC Disruptions [I,T]`=IT_diff, `Weather [W,D]`=WD_diff, 
+         `Other reasons`=Other_diff) %>% 
+  melt(id.vars = c("UNIT_NAME", "FAB"))
+
+ENR_delay_flight_change_bar_plot=ggplot(Changes_vs_prev_year2, aes(x=UNIT_NAME, y=value)) + 
+  geom_bar(aes(fill=variable), stat = "identity")  +
+  geom_point(data=Changes_vs_prev_year, 
+             aes(x=UNIT_NAME, y=Tfc_diff*max(Changes_vs_prev_year$Tot, na.rm = TRUE)/max(Changes_vs_prev_year$Tfc_diff, na.rm = TRUE)),
+             size=3, shape=18, colour="blue") +
+  geom_text(data = filter(Changes_vs_prev_year, YEAR==curr_year), 
+            aes(UNIT_NAME, Tfc_diff*max(Changes_vs_prev_year$Tot, na.rm = TRUE)/max(Changes_vs_prev_year$Tfc_diff, na.rm = TRUE)+0.08, 
+                label=paste0(format(round(Tfc_diff*100, 1), nsmall=1), "%"), fill=NULL, angle=90), colour="blue", vjust=0.3)+
+  facet_grid(.~FAB, scales = "free_x", switch="x") +
+  theme_pru() +
+  scale_y_continuous(sec.axis = sec_axis(~./max(Changes_vs_prev_year$Tot, na.rm = TRUE)*
+                                           max(Changes_vs_prev_year$Tfc_diff, na.rm = TRUE),
+                     labels = scales::percent, name="Traffic change (%)")) +
+  scale_fill_pru() +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.margin = margin(1, 1, 1, 1, "mm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_text(size=10),
+        legend.box = "vertical",
+        axis.text.x = element_text(angle = 90, hjust=1, vjust=0.5)) +
+  labs(x="", y="Change (minutes per flight)", 
+       title = paste0("Change in traffic and average en route ATFM delay per flight vs same period in the previous year (Jan-", 
+                      month.abb[curr_month-1], " ", curr_year, ")"))
+add_logo(plot_name = ENR_delay_flight_change_bar_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/ENR_delay_flight_change_bar.png"))
+
+
+
+
+
+
+## Airport arrival ATFM delays
+
+# Heading key figures
+
+Header=data.frame(Text="", Text2="")
+names(Header)=c(paste0("Key figures (", curr_year, " - ", 
+                       ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1], ")"))), "")
+
+Header_table=tableGrob(Header, rows=NULL, theme=ttheme_minimal(colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
+                                                                            bg_params=list(fill="#3399cc")),
+                                                               core=list(fg_params=list(hjust=0, x=0.02, col="white", fontsize=0.1))))
+Header_table$widths = unit(c(0.95, 0.05), "npc")
+
+
+# Share of airport arrival ATFM delay
+
+Share_APT_ATFM_delay=sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & MONTH_NUM<=curr_month-1)$DLY_APT_ARR_1,
+                         na.rm = TRUE)/
+  sum(filter(PRU_FAC_data, UNIT_NAME=="EUROCONTROL" & YEAR == curr_year & MONTH<=curr_month-1)$TDM_ARP)
+
+Share_APT_ATFM_delay_pie=data.frame(Area=c("Delay", "Rest"),
+                                    APT_delay=c(sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                                             MONTH_NUM<=curr_month-1)$DLY_APT_ARR_1,
+                                                    na.rm = TRUE),
+                                                sum(filter(PRU_FAC_data, UNIT_NAME=="EUROCONTROL" & YEAR == curr_year & 
+                                                             MONTH<=curr_month-1)$TDM_ARP)-
+                                                  sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                                               MONTH_NUM<=curr_month-1)$DLY_APT_ARR_1,
+                                                      na.rm = TRUE))) %>% 
+  mutate(end = 2 * pi * cumsum(APT_delay)/sum(APT_delay)+pi/4,
+         start = lag(end, default = pi/4),
+         middle = 0.5 * (start + end),
+         hjust = ifelse(middle > pi, 1, 0),
+         vjust = ifelse(middle < pi/2 | middle > 3 * pi/2, 0, 1))
+Share_APT_ATFM_delay_pie_plot=ggplot(Share_APT_ATFM_delay_pie) + 
+  geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0.6, r = 1,
+                   start = start, end = end, fill = Area)) +
+  annotate("text", x=0, y=0, label=paste0(format(round(Share_APT_ATFM_delay*100, 1), nsmall=1), "%"), size=3) +
+  scale_fill_pru() +
+  theme_pru() +
+  theme_void()+
+  coord_fixed() +
+  scale_x_continuous(limits = c(-2, 2),  # Adjust so labels are not cut off
+                     name = "", breaks = NULL, labels = NULL) +
+  scale_y_continuous(limits = c(-1.2, 1.2),      # Adjust so labels are not cut off
+                     name = "", breaks = NULL, labels = NULL) +
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        plot.title = element_text(size=10)) +
+  labs(title = "% of airport arrival ATFM delay\nin the EUROCONTROL area")
+add_logo(plot_name = Share_APT_ATFM_delay_pie_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Share_APT_ATFM_delay_pie.png"))
+
+# Share of airport ATFM delayed arrivals
+
+Share_APT_ATFM_delayed_arr=sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & MONTH_NUM<=curr_month-1)$FLT_ARR_1_DLY,
+                               na.rm = TRUE)/
+  sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & MONTH_NUM<=curr_month-1)$FLT_ARR_1, na.rm = TRUE)
+
+Share_APT_ATFM_delayed_arr_pie=data.frame(Area=c("Delay", "Rest"),
+                                    APT_delay=c(sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                                             MONTH_NUM<=curr_month-1)$FLT_ARR_1_DLY, na.rm = TRUE),
+                                                sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                                             MONTH_NUM<=curr_month-1)$FLT_ARR_1, na.rm = TRUE)-
+                                                  sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                                               MONTH_NUM<=curr_month-1)$FLT_ARR_1_DLY, na.rm = TRUE))) %>% 
+  mutate(end = 2 * pi * cumsum(APT_delay)/sum(APT_delay)+pi/4,
+         start = lag(end, default = pi/4),
+         middle = 0.5 * (start + end),
+         hjust = ifelse(middle > pi, 1, 0),
+         vjust = ifelse(middle < pi/2 | middle > 3 * pi/2, 0, 1))
+Share_APT_ATFM_delayed_arr_pie_plot=ggplot(Share_APT_ATFM_delayed_arr_pie) + 
+  geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0.6, r = 1,
+                   start = start, end = end, fill = Area)) +
+  annotate("text", x=0, y=0, label=paste0(format(round(Share_APT_ATFM_delayed_arr*100, 1), nsmall=1), "%"), size=3) +
+  scale_fill_pru() +
+  theme_pru() +
+  theme_void()+
+  coord_fixed() +
+  scale_x_continuous(limits = c(-2, 2),  # Adjust so labels are not cut off
+                     name = "", breaks = NULL, labels = NULL) +
+  scale_y_continuous(limits = c(-1.2, 1.2),      # Adjust so labels are not cut off
+                     name = "", breaks = NULL, labels = NULL) +
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        plot.title = element_text(size=10)) +
+  labs(title = "% of airport ATFM\ndelayed arrivals")
+add_logo(plot_name = Share_APT_ATFM_delayed_arr_pie_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Share_APT_ATFM_delayed_arr_pie.png"))
+
+
+
+
+# Average airport arrival ATFM delay per flight
+
+Avg_APT_ATFM_delay_flight=sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                               MONTH_NUM<=curr_month-1)$DLY_APT_ARR_1, na.rm = TRUE)/
+  sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & MONTH_NUM<=curr_month-1)$FLT_ARR_1, na.rm = TRUE)
+
+Avg_APT_ATFM_delay_flight_plot=ggplot() + 
+  geom_rect(mapping=aes(xmin=-3, xmax=3, ymin=0, ymax=0.4), fill="blue") +
+  annotate("text", x=0, y=0.2, label=paste0(ANSP, "\n", format(round(Avg_APT_ATFM_delay_flight, 1), nsmall=1)), colour="grey", 
+           size=5) +
+  scale_fill_pru() +
+  theme_pru() +
+  theme_void()+
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        plot.title = element_text(size=10)) +
+  labs(title = "Avg. airport arrival ATFM\ndelay per arrival (min)")
+add_logo(plot_name = Avg_APT_ATFM_delay_flight_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Avg_APT_ATFM_delay_flight.png"))
+
+# Average airport arrival ATFM delay per delayed flight
+
+Avg_APT_ATFM_delay_delayed_flight=sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & 
+                                       MONTH_NUM<=curr_month-1)$DLY_APT_ARR_1, na.rm = TRUE)/
+  sum(filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR == curr_year & MONTH_NUM<=curr_month-1)$FLT_ARR_1_DLY, na.rm = TRUE)
+
+Avg_APT_ATFM_delay_delayed_flight_plot=ggplot() + 
+  geom_rect(mapping=aes(xmin=-3, xmax=3, ymin=0, ymax=0.4), fill="blue") +
+  annotate("text", x=0, y=0.2, label=paste0(ANSP, "\n", format(round(Avg_APT_ATFM_delay_delayed_flight, 1), nsmall=1)), colour="grey", 
+           size=5) +
+  scale_fill_pru() +
+  theme_pru() +
+  theme_void()+
+  theme(legend.title = element_blank(),
+        legend.position = "none",
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        plot.title = element_text(size=10)) +
+  labs(title = "Avg. airport arrival ATFM delay\nper delayed arrival (min)")
+add_logo(plot_name = Avg_APT_ATFM_delay_delayed_flight_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Avg_APT_ATFM_delay_delayed_flight.png"))
+
+
+
+# Capacity table
+
+Capacity_data_APT=filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR %in% seq(curr_year-1, curr_year) & MONTH_NUM<=curr_month-1) %>% 
+  group_by(YEAR) %>% 
+  summarise(Con_fl=sum(FLT_ARR_1, na.rm = TRUE),
+            Del_fl=sum(FLT_ARR_1_DLY, na.rm = TRUE),
+            Tot_APT_ATFM_delay=sum(DLY_APT_ARR_1, na.rm=TRUE),
+            APT_ATFM_delay_C_G_S=sum(DLY_APT_ARR_C_1, na.rm=TRUE)+sum(DLY_APT_ARR_G_1, na.rm=TRUE)+sum(DLY_APT_ARR_S_1, na.rm=TRUE),
+            APT_ATFM_delay_I_T=sum(DLY_APT_ARR_I_1, na.rm=TRUE)+sum(DLY_APT_ARR_T_1, na.rm=TRUE),
+            APT_ATFM_delay_W_D=sum(DLY_APT_ARR_W_1, na.rm=TRUE)+sum(DLY_APT_ARR_D_1, na.rm=TRUE),
+            APT_ATFM_delay_other=Tot_APT_ATFM_delay-APT_ATFM_delay_C_G_S-APT_ATFM_delay_I_T-APT_ATFM_delay_W_D
+  ) %>% 
+  arrange(YEAR) %>% 
+  mutate(YEAR=as.numeric(YEAR))
+Capacity_data_APT[nrow(Capacity_data_APT)+1,]=Capacity_data_APT[nrow(Capacity_data_APT),]-Capacity_data_APT[nrow(Capacity_data_APT)-1,]
+
+Capacity_data_APT_table=data.frame(Term=c("Arrivals",
+                                          "Apt. arrival ATFM delay per arrival (min/arr)",
+                                          "Apt. arr. ATFM delay per delayed arrival",
+                                          "Airport arr. ATFM delayed flights (%)",
+                                          "",
+                                          "Total airport arr. ATFM delay (min)",
+                                          "Capacity & Staffing [code C, G, S]",
+                                          "ATC Disruptions [code I,T]",
+                                          "Adverse weather [code W,D]",
+                                          "Other [all other codes]"),
+                                   Curr_year=c(filter(Capacity_data_APT, YEAR==curr_year)$Con_fl,
+                                               format(round(Avg_APT_ATFM_delay_flight, 1), nsmall=1),
+                                               format(round(Avg_APT_ATFM_delay_delayed_flight, 1), nsmall=1),
+                                               paste0(format(round(Share_APT_ATFM_delayed_arr*100, 1), nsmall=1), "%"),
+                                               "",
+                                               filter(Capacity_data_APT, YEAR==curr_year)$Tot_APT_ATFM_delay,
+                                               filter(Capacity_data_APT, YEAR==curr_year)$APT_ATFM_delay_C_G_S,
+                                               filter(Capacity_data_APT, YEAR==curr_year)$APT_ATFM_delay_I_T,
+                                               filter(Capacity_data_APT, YEAR==curr_year)$APT_ATFM_delay_W_D,
+                                               filter(Capacity_data_APT, YEAR==curr_year)$APT_ATFM_delay_other
+                                   ),
+                                   Diff_prev_year=c(filter(Capacity_data_APT, YEAR==1)$Con_fl/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Con_fl*100,
+                                                    filter(Capacity_data_APT, YEAR==curr_year)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year)$Con_fl-
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Con_fl,
+                                                    filter(Capacity_data_APT, YEAR==curr_year)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year)$Del_fl-
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Del_fl,
+                                                    filter(Capacity_data_APT, YEAR==curr_year)$Del_fl/
+                                                      filter(Capacity_data_APT, YEAR==curr_year)$Con_fl-
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Del_fl/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Con_fl,
+                                                    "",
+                                                    filter(Capacity_data_APT, YEAR==1)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Tot_APT_ATFM_delay*100,
+                                                    filter(Capacity_data_APT, YEAR==1)$APT_ATFM_delay_C_G_S/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$APT_ATFM_delay_C_G_S*100,
+                                                    filter(Capacity_data_APT, YEAR==1)$APT_ATFM_delay_I_T/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$APT_ATFM_delay_I_T*100,
+                                                    filter(Capacity_data_APT, YEAR==1)$APT_ATFM_delay_W_D/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$APT_ATFM_delay_W_D*100,
+                                                    filter(Capacity_data_APT, YEAR==1)$APT_ATFM_delay_other/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$APT_ATFM_delay_other*100
+                                   ),
+                                   Perc=c("%", "", "", "%", "", "%", "%", "%", "%", "%"),
+                                   Digits=c(1, 2, 2, 1, 0, 1, 1, 1, 1, 1)) %>% 
+  mutate(Diff_prev_year=as.numeric(as.character(Diff_prev_year)),
+         Text=paste0(ifelse(Diff_prev_year>0, "+", ifelse(round(Diff_prev_year, Digits)==0 & Diff_prev_year<0, "-", "")), 
+                     format(round(Diff_prev_year, Digits), nsmall=Digits), Perc),
+         Colour=ifelse(Term=="Controlled flights",
+                       case_when(Diff_prev_year<0 ~ "red", Diff_prev_year>=0 ~ "green4"),
+                       case_when(Diff_prev_year<0 ~ "green4", Diff_prev_year>=0 ~ "red")))
+Capacity_data_APT_table_colours=Capacity_data_APT_table$Colour
+Capacity_data_APT_table=dplyr::select(Capacity_data_APT_table, -Diff_prev_year, -Colour, -Perc, -Digits)
+names(Capacity_data_APT_table)=c(paste0("Capacity (", ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1], ")"))), 
+                             curr_year, paste0("vs ", curr_year-1))
+
+Capacity_data_APT_table1=tableGrob(Capacity_data_APT_table[1], rows=NULL, 
+                               theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10),
+                                                              bg_params=list(fill=c("white", "white", "white", "white", "white", "white", 
+                                                                                    "#d9d9d9", pru_pal()(5)))),
+                                                    rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                    colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
+                                                                 bg_params=list(fill="#3399cc"))))
+Capacity_data_APT_table2=tableGrob(Capacity_data_APT_table[2], rows=NULL, 
+                               theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, fontsize=10)),
+                                                    rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                    colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
+                                                                 bg_params=list(fill="#3399cc"))))
+Capacity_data_APT_table3=tableGrob(Capacity_data_APT_table[3], rows=NULL, 
+                               theme=ttheme_minimal(core=list(fg_params=list(hjust=0, x=0.02, 
+                                                                             fontsize=10,col=Capacity_data_table_colours)),
+                                                    rowhead=list(fg_params=list(hjust=0, x=0.02)),
+                                                    colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
+                                                                 bg_params=list(fill="#3399cc"))))
+Capacity_data_APT_table=gtable_combine(Capacity_data_APT_table1, Capacity_data_APT_table2, Capacity_data_APT_table3)
+Capacity_data_APT_table$widths = unit(c(0.64, 0.18, 0.18), "npc")
+
+
+
+# Heading
+
+Header2=data.frame(Text="", Text2="")
+names(Header2)=c(paste0("Traffic and arrival ATFM delay by airport (", State_curr, " (", 
+                       ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1], "))"))), "")
+
+Header_table2=tableGrob(Header2, rows=NULL, theme=ttheme_minimal(colhead=list(fg_params=list(hjust=0, x=0.02, col="#eeece1"),
+                                                                            bg_params=list(fill="#3399cc")),
+                                                               core=list(fg_params=list(hjust=0, x=0.02, col="white", fontsize=0.1))))
+Header_table2$widths = unit(c(0.95, 0.05), "npc")
+
+
+
+# Share of arrivals per airport
+
+Flights_data_APT=filter(PRU_APT_ATFM_delay, STATE_NAME==State_curr & YEAR ==curr_year & MONTH_NUM<=curr_month-1) %>% 
+  group_by(APT_NAME) %>% 
+  summarise(Con_fl=sum(FLT_ARR_1, na.rm = TRUE),
+            Tot_APT_ATFM_delay=sum(DLY_APT_ARR_1, na.rm=TRUE)
+            
+  )
+Top_flights_APT=arrange(Flights_data_APT, -Con_fl) %>%
+  select(-Tot_APT_ATFM_delay) %>% 
+  mutate(Share=as.numeric(Con_fl/sum(Con_fl))) %>% 
+  head(8)
+
+Top_flights_APT[nrow(Top_flights_APT)+1,]=c("Other", sum(Flights_data_APT$Con_fl)-sum(Top_flights_APT$Con_fl), 
+                                             1-sum(Top_flights_APT$Con_fl)/sum(Flights_data_APT$Con_fl))
+Top_flights_APT=mutate(Top_flights_APT,
+                       APT_NAME=factor(APT_NAME, levels = rev(Top_flights_APT$APT_NAME)),
+                       Con_fl=as.numeric(Con_fl),
+                       Share=as.numeric(Share))
+
+Top_flights_APT_bar_plot=ggplot(Top_flights_APT, aes(x=APT_NAME, y=Share*100)) + 
+  geom_bar(stat = "identity", fill="blue")  +
+  geom_text(aes(APT_NAME, Share*100+2, label=paste0(format(round(Share*100, 1), nsmall=1), "%"), fill=NULL))+
+  theme_pru() +
+  theme(axis.line.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.margin = margin(1, 1, 1, 1, "mm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_text(size=10),
+        legend.box = "vertical") +
+  labs(x="", y="", title = paste0("% of arrivals ", State_curr, " (", 
+                                  ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year, ")")) +
+  coord_flip()
+add_logo(plot_name = Top_flights_APT_bar_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Top_flights_APT_bar.png"))
+
+
+# Share of ATFM delay per airport
+
+Top_delay_APT=arrange(Flights_data_APT, -Tot_APT_ATFM_delay) %>%
+  select(-Con_fl) %>% 
+  mutate(Share=as.numeric(Tot_APT_ATFM_delay/sum(Tot_APT_ATFM_delay))) %>% 
+  head(8)
+
+Top_delay_APT[nrow(Top_delay_APT)+1,]=c("Other", sum(Flights_data_APT$Tot_APT_ATFM_delay)-sum(Top_delay_APT$Tot_APT_ATFM_delay), 
+                                            1-sum(Top_delay_APT$Tot_APT_ATFM_delay)/sum(Flights_data_APT$Tot_APT_ATFM_delay))
+Top_delay_APT=mutate(Top_delay_APT,
+                       APT_NAME=factor(APT_NAME, levels = rev(Top_delay_APT$APT_NAME)),
+                       Tot_APT_ATFM_delay=as.numeric(Tot_APT_ATFM_delay),
+                       Share=as.numeric(Share))
+
+Top_delay_APT_bar_plot=ggplot(Top_delay_APT, aes(x=APT_NAME, y=Share*100)) + 
+  geom_bar(stat = "identity", fill="blue")  +
+  geom_text(aes(APT_NAME, Share*100+2, label=paste0(format(round(Share*100, 1), nsmall=1), "%"), fill=NULL))+
+  theme_pru() +
+  theme(axis.line.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.margin = margin(1, 1, 1, 1, "mm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_text(size=10),
+        legend.box = "vertical") +
+  labs(x="", y="", title = paste0("% of arrival ATFM delays ", State_curr, " (", 
+                                  ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year, ")")) +
+  coord_flip()
+add_logo(plot_name = Top_delay_APT_bar_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Top_delay_APT_bar.png"))
+
+
+# OVERVIEW APT
+
+lay <- rbind(c(1, 1, 1, 1),
+             c(2, 3, 4, 5),
+             c(6, 6, 7, 7),
+             c(6, 6, 8, 8),
+             c(9, 9, 9, 9),
+             c(10, 10, 11, 11),
+             c(12, 12, 12, 12))
+g=arrangeGrob(Header_table, 
+              Share_APT_ATFM_delay_pie_plot, Share_APT_ATFM_delayed_arr_pie_plot,
+              Avg_APT_ATFM_delay_flight_plot, Avg_APT_ATFM_delay_delayed_flight_plot,
+              Capacity_data_APT_table,
+              Header_table2,
+              Top_flights_APT_bar_plot,
+              Top_delay_APT_bar_plot,
+              as.table=TRUE,
+              nrow=6,
+              ncol=4,
+              heights=c(0.05, 0.2, 0.1, 0.2, 0.05, 0.2, 0.2),
+              widths = c(0.25, 0.25, 0.25, 0.25),
+              layout_matrix = lay)
+ggsave(paste0(dir, "Figures/", State_curr, "/ENR_capacity_overview.png"), plot=g, width = 20, height = 25, units = "cm", dpi=200)

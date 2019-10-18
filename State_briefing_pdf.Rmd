@@ -162,6 +162,18 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_capacity_overview.png
 
 ```
 
+```{r AvgENR-ATFM-delay-flight, echo=FALSE, fig.cap="Average en route ATFM delay per flight (EUROCONTROL area)", fig.align='center'}
+
+include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_delay_flight_bar.png"))
+
+```
+
+```{r AvgENR-ATFM-delay-flight-change, echo=FALSE, fig.cap="Year on year change of average en route ATFM delay per flight (EUROCONTROL area)", fig.align='center'}
+
+include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_delay_flight_change_bar.png"))
+
+```
+
 ### Airport arrival ATFM delays
 
 
