@@ -49,6 +49,76 @@ Traffic_evolution_state_table$widths = unit(c(0.73, 0.15, 0.12), "npc")
 
 
 
+# IFR flights index
+
+Nbr_days=group_by(PRU_FAC_data, YEAR) %>% 
+  summarise(Days=n_distinct(ENTRY_DATE)) %>% 
+  filter(YEAR!=curr_year) %>% 
+  mutate(YEAR=as.character(YEAR))
+Index_data=filter(Flight_data, TZ_NAME %in% c("ECAC", State_curr) & YEAR !=curr_year) %>% 
+  group_by(YEAR, TZ_NAME) %>% 
+  summarise(Tot_flights=sum(FLIGHT)) %>% 
+  left_join(Nbr_days) %>% 
+  mutate(Avg_flt_day=Tot_flights/Days)
+Index_data=mutate(Index_data, Tfc_index=Avg_flt_day/filter(Index_data, YEAR==2008)$Avg_flt_day*100) %>% 
+  ungroup() %>%
+  group_by(TZ_NAME) %>% 
+  arrange(TZ_NAME, YEAR) %>% 
+  mutate(Annual_growth=Avg_flt_day/lag(Avg_flt_day)-1) %>% 
+  ungroup() %>% 
+  mutate(TZ_NAME=paste0(TZ_NAME, " Index (2008)"))
+
+Index_data_plot=ggplot(Index_data) + 
+  geom_line(aes(x=YEAR, y=Tfc_index, colour=TZ_NAME, group=TZ_NAME), size=2) +
+  theme_pru() +
+  scale_color_pru() +
+  ylim(c(80, max(Index_data$Tfc_index))) +
+  labs(y="IFR flights index (base 2008)", title = "") +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_blank())
+add_logo(plot_name = Index_data_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Index_data.png"))
+
+
+# Change of average daily flights
+
+Change_data_plot=ggplot(filter(Index_data, TZ_NAME==paste0(State_curr, " Index (2008)"))) + 
+  geom_bar(aes(x=YEAR, y=Annual_growth), fill="blue", stat = "identity")  +
+  geom_text(aes(x=YEAR, y=Annual_growth+sign(Annual_growth)/200, 
+                label=paste0(format(round(Annual_growth*100, 1), nsmall=1), "%"), angle=90), colour="blue") +
+  theme_pru() +
+  scale_color_pru() +
+  # ylim(c(80, max(Index_data$Tfc_index))) +
+  labs(y="% change vs previous year\n", title = "") +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.4, "cm"),
+        legend.key.width = unit(0.4,"cm"),
+        legend.box.margin = margin(0, 0, 0, 0, "cm"),
+        legend.box.spacing = unit(0.1, "cm"),
+        plot.margin = unit(c(0.2, 0.2, 0.2, 0.2), "cm"),
+        panel.grid.major.y = element_blank(),
+        plot.title = element_blank(),
+        axis.text.x = element_text(angle=90))+
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1))
+add_logo(plot_name = Change_data_plot,
+         source = "Source: PRU analysis",
+         width_pixels = 640,
+         height_pixels = 450,
+         save_filepath = paste0(dir, "Figures/", State_curr, "/Change_data.png"))
+
 
 # SEASONALITY
 
@@ -284,8 +354,8 @@ add_logo(plot_name = Tfc_segments_pie_plot,
 
 # OVERVIEW
 
-g=arrangeGrob(Traffic_evolution_state_table, Tfc_data_seasonality_plot, 
-             Tfc_data_seasonality_plot, Tfc_data_seasonality_plot,
+g=arrangeGrob(Traffic_evolution_state_table, Index_data_plot, 
+             Tfc_data_seasonality_plot, Change_data_plot,
              Tfc_groups_table, Tfc_groups_pie_plot,
              Tfc_segments_table, Tfc_segments_pie_plot,
              nrow=4, ncol=2,

@@ -27,6 +27,7 @@ curr_year=as.numeric(format(Sys.Date(), "%Y"))
 curr_month=as.numeric(format(Sys.Date(), "%m"))
 
 State_curr="Germany"
+ANSP <- "DFS"
 STATFOR_version="Feb. 2019"
 STATFOR_start_year=2008
 BADA_curr="3.13.1"
@@ -34,43 +35,8 @@ BADA_curr="3.13.1"
 
 source("Read_data.R")
 source("Traffic_characteristics.R")
-
-# En-route ATFM delay
-
-ANSP <- "DFS"
-year_start <- "2015-01-01"
-year_end <- "2019-01-31"
-year_input <- "2018"
-ref_year <- "2017"
-
 source("Capacity.R")
-
-# Airport arrival ATFM delays
-
-airport <- "Frankfurt"
-since <- "2014"
-to <- "2019"
-
-source("R/capacity/read-ert-dly.R")
-source("R/capacity/read-apt-dly.R")
-source("R/capacity/plot-flights.R")
-source("R/capacity/plot-delays.R")
-source("R/capacity/plot-avg-dly-flt.R")
-source("R/capacity/plot-avg-grouped-dly-flt.R")
-
-# Horizontal flight efficieny
-year_input <- "2018"
-year_input_start <- "2014"
-
-model <- "CPF"
-state_under_review <- "Germany"
-year_start <- "2014-01-01"
-year_end <- "2018-12-31"
-
-source("R/environment/read-hfe.R")
-source("R/environment/plot-hfe-year.R")
-source("R/environment/plot-hfe-daily.R")
-source("R/environment/plot-flt-efficiency.R")
+source("Environment.R")
 
 
 rmarkdown::render(paste0(dir, 'State_briefing_pdf.Rmd'),

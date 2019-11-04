@@ -136,10 +136,16 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/Tfc_char_overview.png"))
 
 ```
 
-* Traffic in the UK has been growing steadily since 2013. In `r curr_year-1`, traffic increased by +0.9% which was in line with the low traffic scenario in the Feb. 2018 STATFOR forecast. Between 2013 and 2018, traffic increased by 15.0% to reach a level comparable to the pre-crisis level of `r STATFOR_start_year`
-* In the first `r curr_month-1` months of `r curr_year`, traffic in the UK increased by +1.7% compared to the same period in `r curr_year-1`
+```{r Tfc-values}
+
+Diff_prev_year=filter(Capacity_data, YEAR==1)$Con_fl/filter(Capacity_data, YEAR==curr_year-1)$Con_fl*100
+Diff_text=paste0(ifelse(Diff_prev_year>0, "+", ifelse(round(Diff_prev_year, 1)==0 & Diff_prev_year<0, "-", "")), 
+                     format(round(Diff_prev_year, 1), nsmall=1), "%")
+
+```
+* In `r curr_year-1`, traffic increased by `r paste0(ifelse(Tfc_gr_Prev_year>0, "+", ifelse(round(Tfc_gr_Prev_year, 1)==0 & Tfc_gr_Prev_year<0, "-", "")), format(round(Tfc_gr_Prev_year, 1), nsmall=1), "%")`. Between `r curr_year-6` and `r curr_year-1`, traffic increased by `r format(round(((filter(Index_data, TZ_NAME==paste0(State_curr, " Index (2008)") & YEAR==curr_year-1)$Tot_flights/filter(Index_data, TZ_NAME==paste0(State_curr, " Index (2008)") & YEAR==curr_year-6)$Tot_flights)-1)*100, 1), nsmall=1)`%.
+* In the first `r ifelse(curr_month==2, "month", paste0(curr_month-1, " months"))` of `r curr_year`, traffic in `r ifelse(State_curr=="UK", "the UK", State_curr)` increased by `r Diff_text` compared to the same period in `r curr_year-1`
 * The largest traffic segment is `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[1]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[1], 1), nsmall=1)`%), followed by `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[2]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[2], 1), nsmall=1)`%) and `r arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Text[3]` (`r format(round(arrange(filter(Tfc_groups, YEAR==curr_year), -Share)$Share[3], 1), nsmall=1)`%).
-* According to the latest available forecast, (STATFOR `r STATFOR_version`), traffic in the UK is expected to grow at an annual average rate of 1.4% between `r curr_year` and 2025 (baseline scenario) [High:+2.2; Low:+0.2%]. A controlled Brexit is considered in the baseline scenario, while a hard Brexit is considered in the low scenario.
 
 \newpage
 # Safety
@@ -174,29 +180,63 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_delay_flight_change_b
 
 ```
 
+
+```{r Diff_prev_year_delay-ENR", echo=FALSE}
+
+Diff_prev_year_delay_perc=filter(Capacity_data, YEAR==1)$Tot_ENR_ATFM_delay/filter(Capacity_data, YEAR==curr_year-1)$Tot_ENR_ATFM_delay*100
+Text_diff_perc=paste0(ifelse(Diff_prev_year_delay_perc>0, "+", ifelse(round(Diff_prev_year_delay_perc, 1)==0 &
+                                                                        Diff_prev_year_delay_perc<0, "-", "")), 
+                     format(round(Diff_prev_year_delay_perc, 1), nsmall=1), "%")
+
+
+```
+
+
+
+* In the first `r ifelse(curr_month==2, "month", paste0(curr_month-1, " months"))` of `r curr_year`, `r ifelse(State_curr=="UK", "the UK", State_curr)` accounted for `r format(round(Share_flight_hours_controlled*100, 1), nsmall=1)`% of total controlled flight hours and generated `r format(round(Share_ENR_ATFM_delay*100, 1), nsmall=1)`% of total en-route ATFM delays in the EUROCONTROL area. Overall, `r format(round(Share_ENR_ATFM_delayed_flights*100, 1), nsmall=1)`% of the controlled flights in the respective airspace were delayed by en-route ATFM delays (`r paste0(ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year)`).
+* Delays `r ifelse(Diff_prev_year_delay_perc>0, "increased", ifelse(Diff_prev_year_delay_perc<0, "decreased", "stayed constant"))` in `r curr_year` (`r Text_diff_perc` vs. `r paste0(ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year-1)`) to reach `r format(round(ENR_ATFM_delay_flight, 2), nsmall=2)` minutes per flight.
+
+
 ### Airport arrival ATFM delays
 
+```{r Capacity-overview-APT, echo=FALSE, fig.cap="Traffic evolution of airport arrival ATFM delays", fig.align='center'}
 
+include_graphics(paste0(dir, "Figures/", State_curr, "/APT_capacity_overview.png"))
+
+```
+
+```{r Diff_prev_year_delay-APT", echo=FALSE}
+
+Diff_prev_year_delay_perc=filter(Capacity_data_APT, YEAR==1)$Tot_APT_ATFM_delay/
+                                                      filter(Capacity_data_APT, YEAR==curr_year-1)$Tot_APT_ATFM_delay*100
+Text_diff_perc=paste0(ifelse(Diff_prev_year_delay_perc>0, "+", ifelse(round(Diff_prev_year_delay_perc, 1)==0 &
+                                                                        Diff_prev_year_delay_perc<0, "-", "")), 
+                     format(round(Diff_prev_year_delay_perc, 1), nsmall=1), "%")
+
+
+```
+
+- `r State_curr` accounted for `r format(round(Share_APT_ATFM_delay*100, 1), nsmall=1)`% of all arrival ATFM delay in the EUROCONTROL area (`r paste0(ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year)`).
+- Overall, `r format(round(Share_APT_ATFM_delayed_arr*100, 1), nsmall=1)`% of the flights arriving at airports in `r ifelse(State_curr=="UK", "the UK", State_curr)` were delayed by arrival ATFM regulations (`r paste0(ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year)`). Total arrival ATFM delay `r ifelse(Diff_prev_year_delay_perc>0, paste0("increased by ", Text_diff_perc), ifelse(Diff_prev_year_delay_perc<0, paste0("decreased by ", Text_diff_perc), "stayed constant"))` vs. `r paste0(ifelse(curr_month==1, "Jan", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year-1)`.
+- The main share (`r format(round(Top_delay_APT$Share[1]*100, 1), nsmall=1)`%) was generated by `r Top_delay_APT$APT_NAME[1]`, closely followed by `r Top_delay_APT$APT_NAME[2]` accounting for `r format(round(Top_delay_APT$Share[2]*100, 1), nsmall=1)`% of all airport ATFM delay in `r ifelse(State_curr=="UK", "the UK", State_curr)` during the first `r ifelse(curr_month==2, "month", paste0(curr_month-1, " months"))` of `r curr_year`.
 
 
 \newpage
 # Environment
 
-Source : PRU ANS Performance Data Portal 
-         The data in this section is from the PRU ANS performance data portal (data section).  
-         It is available at: <http://ansperformance.eu/data/performancearea/>
+Source: PRU ANS Performance Data Portal 
+        The data in this section is from the PRU ANS performance data portal (data section).  
+        It is available at: <http://ansperformance.eu/data/performancearea/>
 
 ## Horizontal en-route flight efficiency
 
+```{r HFE-overview, echo=FALSE, fig.cap="Horizontal en-route flight efficiency", fig.align='center'}
 
+include_graphics(paste0(dir, "Figures/", State_curr, "/HFE_overview.png"))
 
-```{r hfe-values, echo = FALSE, message = FALSE}
-avg_ectl <- round(sum(all_countries$flt_eff)/length(all_countries$flt_eff), 1)
-avg_ectl <- paste0(avg_ectl, "%")
 ```
 
-- Horizontal en-route flight efficiency (actual trajectory) was  `r avg_ectl` 
-in the EUROCONTROL area in `r year_input`. 
+
 
 ## Vertical en-route flight efficiency
 
@@ -214,7 +254,6 @@ in the EUROCONTROL area in `r year_input`.
 \newpage
 # Annex 2: Network Operations Plan (2018-2019/22)
 
-## YEREVAN ACC
 
 
 \newpage

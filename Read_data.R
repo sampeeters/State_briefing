@@ -1,6 +1,26 @@
 
 drv <- dbDriver("Oracle")
 con <- dbConnect(drv, "PRUDEV", Sys.getenv("PRUDEV_psw"), dbname=Sys.getenv("DB"))
+Flight_data=dbGetQuery(con, paste0("select  
+to_char(f.lobt,'YYYY') as YEAR
+, EXTRACT (MONTH FROM f.lobt) MONTH_NUM
+, to_char(f.lobt,'MON') as MONTH_MON 
+, lobt
+, c.tz_name
+, daio
+, r.sk_flt_type_rule_id 
+, r.RULE_NAME 
+, sum(tf_tz) as FLIGHT
+, sum(state_dur)/60 as DUR_HRS
+, sum(f.act_dist)*1.852 as DIST_KM 
+from  swh_dm.dm_tz_fir_m4  f  ,  swh_fct.dimcl_tz c , SWH_FCT.DIM_FLIGHT_TYPE_RULE r
+where f.lobt >= '01-JAN-2008'
+      and c.SK_T2TR_ID = f.sk_dimcl_tz_id
+      and R.SK_FLT_TYPE_RULE_ID = F.SK_FLT_TYPE_RULE_ID 
+      --and c.tz_name = 'ESRA08'
+      and (c.tr_name like 'ESRA%' or c.tr_name like 'Other Europe' or c.tr_name like 'TR-ESRA 2008' or c.tr_name like 'TR-ECAC')   
+group by c.tz_name , lobt, daio , r.sk_flt_type_rule_id, R.RULE_NAME order by lobt"))
+
 STATFOR_data=dbGetQuery(con, paste0("select  
 to_char(f.lobt,'YYYY') as YEAR
 , EXTRACT (MONTH FROM f.lobt) MONTH_NUM
@@ -91,6 +111,25 @@ cplx_date,
 u.ansp_name, fl
 ORDER BY 4"))
 dbDisconnect(con2)
+
+con3 <- dbConnect(drv, "PRUTEST", Sys.getenv("PRUTEST_psw"), dbname=Sys.getenv("DB"))
+HFE_data=dbGetQuery(con3, "With SRC as (select a.*, b.*
+FROM PRUTEST.HFE_DAILY a, PRUTEST.DSH_BRIDGE_NAMES b
+WHERE entry_date >= '01-JAN-2015'and a.mes_area = b.mes_area)
+SELECT 
+         EXTRACT (YEAR FROM entry_date) YEAR
+,        EXTRACT (MONTH FROM entry_date) MONTH_NUM
+,        TO_CHAR (entry_date, 'MON') MONTH_MON
+,        entry_date
+,        ENTITY_NAME
+,        ENTITY_TYPE
+,        model_type AS TYPE_MODEL
+,        flown_km AS DIST_FLOWN_KM
+,        round(direct_km, 2) AS DIST_DIRECT_KM
+,        round(achieved_km, 2) AS DIST_ACHIEVED_KM
+,        FLIGHTS AS FLIGHTS
+FROM SRC")
+dbDisconnect(con3)
 
 FAB_ANSPs=read.xlsx("Data/FAB-ANSP.xlsx")
 FAB_ANSPs=mutate(FAB_ANSPs, FAB=factor(FAB, levels=unique(FAB_ANSPs$FAB)))
