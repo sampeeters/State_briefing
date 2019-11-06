@@ -309,3 +309,10 @@ ggsave(paste0(dir, "Figures/", State_curr, "/HFE_overview.png"), plot=g, width =
 
 # Climb and descent
 
+
+
+
+
+
+
+
