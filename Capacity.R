@@ -554,7 +554,7 @@ Data_ANSPs=filter(PRU_FAC_data, YEAR %in% c(curr_year-1, curr_year) & MONTH<=cur
             Tot_ENR_ATFM_delay=`ATC Capacity [C]`+`ATC Staffing [S]`+`ATC Disruptions [I,T]`+`Weather [W,D]`+`Other reasons`
   ) %>% 
   filter(UNIT_NAME %in% FAB_ANSPs$ANSP) %>% 
-  left_join(FAB_ANSPs, by=c("UNIT_NAME"="ANSP")) %>% 
+  left_join(select(FAB_ANSPs, -Country, -Code), by=c("UNIT_NAME"="ANSP")) %>% 
   arrange(YEAR, FAB, UNIT_NAME)
 
 Data_ANSPs2=filter(Data_ANSPs, YEAR==curr_year) %>%
@@ -568,8 +568,7 @@ ENR_delay_flight_bar_plot=ggplot(Data_ANSPs2, aes(x=UNIT_NAME, y=value)) +
   geom_bar(aes(fill=variable), stat = "identity")  +
   geom_text(data = filter(Data_ANSPs, YEAR==curr_year), 
             aes(UNIT_NAME, Tot_ENR_ATFM_delay+0.05, label=format(round(Tot_ENR_ATFM_delay, 2), nsmall=2), fill=NULL, angle=90))+
-  geom_errorbar(aes(ymin = bars, ymax = bars), 
-                size = 2, colour="black") + 
+  geom_errorbar(aes(ymin = bars, ymax = bars), size = 2, colour="black") + 
   scale_colour_continuous(name="", label=paste0(curr_year-1, " (Jan-", month.abb[curr_month-1], ")")) +
   facet_grid(.~FAB, scales = "free_x", switch="x") +
   theme_pru() +

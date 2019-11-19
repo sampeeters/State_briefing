@@ -131,5 +131,6 @@ SELECT
 FROM SRC")
 dbDisconnect(con3)
 
-FAB_ANSPs=read.xlsx("Data/FAB-ANSP.xlsx")
-FAB_ANSPs=mutate(FAB_ANSPs, FAB=factor(FAB, levels=unique(FAB_ANSPs$FAB)))
+CDO_CCO_data=read.xlsx("https://coll.eurocontrol.int/sites/pru/dashboard/Data/Vertical_Flight_Efficiency_cdo_cco.xlsx", sheet = "DATA")
+
+

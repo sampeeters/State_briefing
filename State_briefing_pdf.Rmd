@@ -236,11 +236,31 @@ include_graphics(paste0(dir, "Figures/", State_curr, "/HFE_overview.png"))
 
 ```
 
+```{r HFE-results, echo=FALSE}
 
+HFE_actual_state=format(round(filter(HFE_results, ENTITY_NAME==State_curr & YEAR == curr_year & TYPE_MODEL=="CPF")$HFE*100, 1), nsmall=1)
+HFE_actual_ECTL=format(round(filter(HFE_results, ENTITY_NAME=="EUROCONTROL Area (PRR)" & YEAR == curr_year & TYPE_MODEL=="CPF")$HFE*100, 1), nsmall=1)
+
+```
+
+- Overall, `r ifelse(State_curr=="UK", "the UK", State_curr)` accounted for `r format(round(Share_add_dist*100, 1), nsmall=1)`% of the total additional distance flown in the EUROCONTROL area `r paste0(ifelse(curr_month==1, "Jan)", paste0("Jan-", month.abb[curr_month-1])), " ", curr_year)`.
+- Horizontal en-route flight efficiency (actual trajectory) is `r HFE_actual_state`% which is `r ifelse(HFE_actual_state>HFE_actual_ECTL, "above", ifelse(HFE_actual_state<HFE_actual_ECTL, "below", "equal to"))` the EUROCONTROL area average (`r HFE_actual_ECTL`%).
 
 ## Vertical en-route flight efficiency
 
+```{r ENR-VFE-overview, echo=FALSE, fig.cap="Vertical en-route flight efficiency", fig.align='center'}
+
+# include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_VFE_overview.png"))
+
+```
+
 ## Vertical flight efficiency during climb & descent
+
+```{r CDO-CCO-overview, echo=FALSE, fig.cap="Vertical flight efficiency during climb and descent", fig.align='center'}
+
+include_graphics(paste0(dir, "Figures/", State_curr, "/CDO_CCO_overview.png"))
+
+```
 
 
 \newpage

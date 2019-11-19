@@ -26,8 +26,11 @@ Sys.setenv(ORA_SDTZ = "UTC")
 curr_year=as.numeric(format(Sys.Date(), "%Y"))
 curr_month=as.numeric(format(Sys.Date(), "%m"))
 
+FAB_ANSPs=read.xlsx("Data/FAB-ANSP.xlsx")
+FAB_ANSPs=mutate(FAB_ANSPs, FAB=factor(FAB, levels=unique(FAB_ANSPs$FAB)))
+
 State_curr="Germany"
-ANSP <- "DFS"
+ANSP=filter(FAB_ANSPs, Country==State_curr)$ANSP
 STATFOR_version="Feb. 2019"
 STATFOR_start_year=2008
 BADA_curr="3.13.1"
