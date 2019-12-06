@@ -20,6 +20,7 @@ graphics: yes
 header-includes: 
 - \usepackage{float}
 - \floatplacement{figure}{H} #make every figure with caption = h
+- \usepackage[table]{xcolor}
 urlcolor: blue
 subparagraph: yes
 editor_options: 
@@ -250,7 +251,7 @@ HFE_actual_ECTL=format(round(filter(HFE_results, ENTITY_NAME=="EUROCONTROL Area 
 
 ```{r ENR-VFE-overview, echo=FALSE, fig.cap="Vertical en-route flight efficiency", fig.align='center'}
 
-# include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_VFE_overview.png"))
+include_graphics(paste0(dir, "Figures/", State_curr, "/ENR_VFE_overview.png"))
 
 ```
 

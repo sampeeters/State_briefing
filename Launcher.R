@@ -31,6 +31,7 @@ FAB_ANSPs=mutate(FAB_ANSPs, FAB=factor(FAB, levels=unique(FAB_ANSPs$FAB)))
 
 State_curr="Germany"
 ANSP=filter(FAB_ANSPs, Country==State_curr)$ANSP
+Country_code=filter(FAB_ANSPs, Country==State_curr)$Code
 STATFOR_version="Feb. 2019"
 STATFOR_start_year=2008
 BADA_curr="3.13.1"
